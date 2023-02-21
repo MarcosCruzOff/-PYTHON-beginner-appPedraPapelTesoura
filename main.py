@@ -12,34 +12,48 @@ app.geometry("380x720")
 title = Label(app, text="Escolha sua opção!", font=("jetBrains Mono", 16, "bold"), fg="#121212").pack(pady=10)
 
 def handle_click(event):
-  x,y = event.x, event.y
-  
-  if(x>=100 and y<=80):
-    print("Pedra")
+  # Obtenha as coordenadas x e y do mouse a partir do evento
+  x, y = event.x, event.y
 
-frame_background_rock = Canvas(app, bg="red", width=360, height=100)
-frame_background_rock.pack(pady=10)
-# frame_background_paper.bind("<Button-1>", handle_click)
+  # Verifique qual objeto canvas foi clicado
+  for imagem, obj in imagens:
+      # Obtenha as coordenadas do objeto canvas
+      obj_coords = frame_background.coords(obj)
+
+      # Obtenha a largura e altura da imagem
+      img_width = imagem.width()
+      img_height = imagem.height()
+
+      # Calcule as coordenadas dos dois cantos da imagem
+      obj_x1, obj_y1 = obj_coords
+      obj_x2 = obj_x1 + img_width
+      obj_y2 = obj_y1 + img_height
+
+      # Verifique se as coordenadas do mouse estão dentro das coordenadas do objeto canvas
+      if obj_x1 <= x <= obj_x2 and obj_y1 <= y <= obj_y2:
+          # Atualize a imagem do componente Label para a imagem atualmente selecionada
+          imagem_label.configure(image=imagem)
+
+
+frame_background = Canvas(app, bg="white", width=360, height=300)
+frame_background.pack()
+frame_background.bind("<Button-1>", handle_click)
+
+#Images Pedra, Papel, Tesoura
 rock = PhotoImage(file="PEDRA.png", width=100, height=85)
-img_rock = Label(frame_background_rock, width=360, image=rock, bg="white", highlightthickness=0, justify="center")
-img_rock.place(x=0, y=7)
-img_rock.bind("<Button-1>", handle_click)
+obj_rock = frame_background.create_image(190,50, image=rock, tags="imagem")
 
-frame_background_paper = Canvas(app, bg="red", width=360, height=100)
-frame_background_paper.pack(pady=10)
-# frame_background_paper.bind("<Button-1>", handle_click)
-paper = PhotoImage(file="PAPELs.png", width=100, height=85)
-img_paper = Label(frame_background_paper, width=360, image=paper, bg="white", highlightthickness=0, justify="center")
-img_paper.place(x=0, y=7)
-img_paper.bind("<Button-1>", handle_click)
+paper = PhotoImage(file="PAPEL.png", width=100, height=85)
+obj_paper = frame_background.create_image(190,150, image=paper, tags="imagem")
 
-frame_background_scissor = Canvas(app, bg="red", width=360, height=100)
-frame_background_scissor.pack()
-# frame_background_scissor.bind("<Button-1>", handle_click)
 scissor = PhotoImage(file="TESOURA.png", width=100, height=85)
-img_scissor = Label(frame_background_scissor, width=360, image=scissor, bg="white", highlightthickness=0, justify="right",)
-img_scissor.place(x=0, y=7)
-img_scissor.bind("<Button-1>", handle_click) 
+obj_scissor = frame_background.create_image(190,250, image=scissor, tags="imagem")
+
+imagens = [(rock, obj_rock), (paper, obj_paper), (scissor, obj_scissor)]
+
+#Cria um novo componente Label para mostrar a imagem selecionada
+imagem_label = Label(app, image='')
+imagem_label.place(x=9, y=360)
 
 
 
