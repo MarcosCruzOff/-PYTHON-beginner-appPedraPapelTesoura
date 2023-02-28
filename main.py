@@ -1,128 +1,149 @@
 from tkinter import *
+from PIL import ImageTk, Image
 import random
 
 #Inicialização gerais do app: dimensão de tela, título icone
 app = Tk()
-app.title("Jogo da velha")
+app.title("Jogo Pedra Papel Tesoura")
 icon = PhotoImage(file="imagens/icon.png")
 app.iconphoto(True, icon)
 app.geometry("380x720")
 app.resizable(False, False)
+app.config(bg="#FFFFFF")
 
-title = Label(app, text="1° Escolha sua opção!", font=("jetBrains Mono", 16, "bold"), fg="#121212").pack(pady=10)
 
-imagens = {
-    'pedra': PhotoImage(file='imagens/pedra.png', width=100, height=85),
-    'papel': PhotoImage(file='imagens/papel.png', width=100, height=85),
-    'tesoura': PhotoImage(file='imagens/tesoura.png', width=100, height=85)
+
+#variável de estilização
+bg_app = "#FFFFFF"
+color_fonts_bords = "#0D1C47"
+
+#variavel global
+opcao_usuario = None
+
+title = Label(app, text="1° Escolha sua opção!", font=("jetBrains Mono", 16, "bold"), fg=color_fonts_bords, bg=bg_app).pack(pady=10)
+
+# carregar imagens
+pedra_img = ImageTk.PhotoImage(Image.open("imagens/pedra.png"))
+papel_img = ImageTk.PhotoImage(Image.open("imagens/papel.png"))
+tesoura_img = ImageTk.PhotoImage(Image.open("imagens/tesoura.png"))
+
+# armazenar as imagens em um dicionário
+opcoes_imagens = {
+    "pedra": pedra_img,
+    "papel": papel_img,
+    "tesoura": tesoura_img
 }
 
-#Images Pedra, Papel, Tesoura
-pedra = PhotoImage(file="imagens/pedra.png", width=100, height=85)
-pedra_label = Label(app, image=pedra)
+# função para tratar o evento de clique nas imagens
+def escolher_opcao(opcao):
+    global opcao_usuario
+    usuario_label.config(image=opcoes_imagens[opcao])
+    usuario_label.image = opcoes_imagens[opcao]
+    opcao_usuario = opcao
+    print(opcao)  
+
+# criar labels para as imagens
+pedra_label = Label(app, image=pedra_img, bg=color_fonts_bords)
 pedra_label.place(x=10,y=80)
-pedra_label.bind("<Button-1>", lambda e: handle_click(pedra))
-
-papel = PhotoImage(file="imagens/papel.png", width=100, height=85)
-papel_label = Label(app, image=papel)
+pedra_label.bind("<Button-1>", lambda e: escolher_opcao("pedra"))
+papel_label = Label(app, image=papel_img, bg=color_fonts_bords)
 papel_label.place(x=137,y=80)
-papel_label.bind("<Button-1>", lambda e: handle_click(papel))
-
-tesoura = PhotoImage(file="imagens/tesoura.png", width=100, height=85)
-tesoura_label = Label(app, image=tesoura)
+papel_label.bind("<Button-1>", lambda e: escolher_opcao("papel"))
+tesoura_label = Label(app, image=tesoura_img, bg=color_fonts_bords)
 tesoura_label.place(x=264,y=80)
-tesoura_label.bind("<Button-1>", lambda e: handle_click(tesoura))
+tesoura_label.bind("<Button-1>", lambda e: escolher_opcao("tesoura"))
 
 #Cria um novo componente Label para mostrar a imagem selecionada do usuário
-usuario_label = Label(app, image=None)
-usuario_label.place(x=9, y=260)
+usuario_label = Label(app, image=None, bg=bg_app, highlightthickness=0)
+usuario_label.place(x=9, y=300)
 
 #Cria um novo componente Label para mostrar a imagem selecionada da máquina
-maquina_label = Label(app, image=None)
-maquina_label.place(x=260, y=260)
+maquina_label = Label(app, image=None, bg=bg_app)
+maquina_label.place(x=260, y=300)
+
+#Cria um novo componente Label para mostrar as escolhas do usuário e da máquina
+escolhas_label = Label(app, image= None, bg=bg_app)
+escolhas_label.place(x=80, y=210)
 
 vs_img = PhotoImage(file="imagens/vs.png")
-vs_label = Label(app, image=vs_img)
-vs_label.place(x=140, y=170)
+vs_label = Label(app, image=vs_img, highlightthickness=0, bg=bg_app)
+vs_label.place(x=140, y=300)
+    
+#adicionar contador de vitórias, empate e derrotas
+empates = StringVar(value="0")
+vitorias = StringVar(value="0")
+derrotas = StringVar(value="0")
 
-#Cria o componente placar
-resultado_label = Label(app, width=50, height=5)
-resultado_label.place(x=140, y=370)
-# resultados_label = Label(app,width=50, height=5)
-# resultado_label.place(x=140, y=470)
+Label(app, text="Vitórias: ", font=("jetBrains Mono", 10, "bold"), fg=color_fonts_bords, bg=bg_app).place(x=10, y=600)
+Label(app, textvariable=vitorias, font=("jetBrains Mono", 10, "bold"), fg=color_fonts_bords, bg=bg_app).place(x=80, y=600)
 
+Label(app, text="Empates", font=("jetBrains Mono", 10, "bold"), fg=color_fonts_bords, bg=bg_app).place(x=10, y=620)    
+Label(app, textvariable=empates, font=("jetBrains Mono", 10, "bold"), fg=color_fonts_bords, bg=bg_app).place(x=80, y=620)
 
+Label(app, text="Derrotas", font=("jetBrains Mono", 10, "bold"), fg=color_fonts_bords, bg=bg_app).place(x=10, y=640)    
+Label(app, textvariable=derrotas, font=("jetBrains Mono", 10, "bold"), fg=color_fonts_bords, bg=bg_app).place(x=80, y=640)
 
+def determinar_resultado(escolha_usuario, escolha_bot):
+    if escolha_usuario == escolha_bot:
+        return "Empate!"
+    elif escolha_usuario == "pedra":
+        if escolha_bot == "papel":
+            return "Você perdeu!"
+        else:
+            return "Você ganhou!"
+    elif escolha_usuario == "papel":
+        if escolha_bot == "tesoura":
+            return "Você perdeu!"
+        else:
+            return "Você ganhou!"
+    elif escolha_usuario == "tesoura":
+        if escolha_bot == "pedra":
+            return "Você perdeu!"
+        else:
+            return "Você ganhou!"
 
-# função para tratar o evento de clique nas imagens
-def handle_click(event):
-    usuario_label.config(image=event)
-    usuario_label.image = event
-    # habilita o botão "Jogar" que estará desabilitado
-    jogar_button.config(state="normal")
-    print(event)
+def jogar(vitorias, derrotas, empates):
+    # obter opção do usuário
+    global opcao_usuario
+    
+    if opcao_usuario is None:
+        # usuário não selecionou nenhuma opção
+        return     
 
-def jogar():
-    # obter a opção do usuário e validar se foi selecionada
-    opcao_usuario = usuario_label.cget("image")
-    if not opcao_usuario:
-        return
-
-    # opções do jogo
-    opcoes = ["pedra", "papel", "tesoura"]
-
-    # escolher uma opção aleatória para a máquina
-    opcao_maquina = random.choice(opcoes)
-
-    # criar um caminho para o arquivo da imagem da opção da máquina
-    opcao_maquina_path = f"imagens/{opcao_maquina}.png"
-
+  # escolher opção da máquina
+    opcoes_maquina = ["pedra", "papel", "tesoura"]
+    opcao_maquina = random.choice(opcoes_maquina)
+    
     # exibir a imagem da opção da máquina
+    opcao_maquina_path = f"imagens/{opcao_maquina}.png"
     opcao_maquina_image = PhotoImage(file=opcao_maquina_path)
     maquina_label.config(image=opcao_maquina_image)
     maquina_label.image = opcao_maquina_image
 
-    # determinar o resultado do jogo
-    if opcao_usuario == pedra and opcao_maquina == "tesoura":
-        resultado = "Você ganhou!"
-    elif opcao_usuario == papel and opcao_maquina == "pedra":
-        resultado = "Você ganhou!"
-    elif opcao_usuario == tesoura and opcao_maquina == "papel":
-        resultado = "Você ganhou!"
-    elif opcao_usuario == pedra and opcao_maquina == "papel":
-        resultado = "Você perdeu!"
-    elif opcao_usuario == papel and opcao_maquina == "tesoura":
-        resultado = "Você perdeu!"
-    elif opcao_usuario == tesoura and opcao_maquina == "pedra":
-        resultado = "Você perdeu!"
+   # atualizar as labels de escolhas
+    escolhas_label.config(text=f"Você escolheu {opcao_usuario}. \nO computador escolheu {opcao_maquina}.",font=("jetBrains Mono", 10, "bold"), fg=color_fonts_bords, justify="center",  bg=bg_app)
+    
+
+    # determinar o resultado da partida
+    resultado = determinar_resultado(opcao_usuario, opcao_maquina)
+    
+    # atualizar o contador de resultados
+    if resultado == "Você ganhou!":
+        vitorias.set(str(int(vitorias.get()) + 1))
+    elif resultado == "Você perdeu!":
+        derrotas.set(str(int(derrotas.get()) + 1))
     else:
-        resultado = "Empate!"
+        empates.set(str(int(empates.get()) + 1))
 
-    
-    
-    # # atualizar o contador de resultados
-    # if resultado == "Você ganhou!":
-    #     vitorias.set(vitorias.get() + 1)
-    # elif resultado == "Você perdeu!":
-    #     derrotas.set(derrotas.get() + 1)
-    # else:
-    #     empates.set(empates.get() + 1)
+    resultado_label.config(text=resultado)  
 
-    # # exibir o resultado do jogo
-    
-    resultado_label.config(text=resultado)
+# criar botão jogar
+botao_jogar = Button(app, text="JOGAR", font=("jetBrains Mono", 10, "bold"),bg="#FED934", width=45, height=2)
+botao_jogar.place(x=5, y=410)
+botao_jogar.bind("<Button-1>", lambda e: jogar(vitorias, derrotas, empates))
 
-
-
-#Criar botão jogar
-jogar_button = Button(app, text="Jogar", width=50, height=2)
-jogar_button.place(x=9, y=360)
-jogar_button.bind("<Button-1>", lambda e: jogar())
-jogar_button.config(state="disabled")
-
-
-
-
-
+#Cria o componente placar
+resultado_label = Label(app, width=50, height=5,  font=("jetBrains Mono", 10, "bold"), fg=color_fonts_bords, bg=bg_app)
+resultado_label.place(x=100, y=600)
 
 mainloop()
