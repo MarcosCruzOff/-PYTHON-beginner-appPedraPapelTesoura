@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 from PIL import ImageTk, Image
 import random
 
@@ -10,8 +11,6 @@ app.iconphoto(True, icon)
 app.geometry("380x720")
 app.resizable(False, False)
 app.config(bg="#FFFFFF")
-
-
 
 #variável de estilização
 bg_app = "#FFFFFF"
@@ -106,41 +105,43 @@ def jogar(vitorias, derrotas, empates):
     # obter opção do usuário
     global opcao_usuario
     
-    if opcao_usuario is None:
-        # usuário não selecionou nenhuma opção
-        return     
-
-  # escolher opção da máquina
-    opcoes_maquina = ["pedra", "papel", "tesoura"]
-    opcao_maquina = random.choice(opcoes_maquina)
+    if opcao_usuario :
+        # escolher opção da máquina
+        opcoes_maquina = ["pedra", "papel", "tesoura"]
+        opcao_maquina = random.choice(opcoes_maquina)
     
-    # exibir a imagem da opção da máquina
-    opcao_maquina_path = f"imagens/{opcao_maquina}.png"
-    opcao_maquina_image = PhotoImage(file=opcao_maquina_path)
-    maquina_label.config(image=opcao_maquina_image)
-    maquina_label.image = opcao_maquina_image
+        # exibir a imagem da opção da máquina
+        opcao_maquina_path = f"imagens/{opcao_maquina}.png"
+        opcao_maquina_image = PhotoImage(file=opcao_maquina_path)
+        maquina_label.config(image=opcao_maquina_image)
+        maquina_label.image = opcao_maquina_image
 
-   # atualizar as labels de escolhas
-    escolhas_label.config(text=f"Você escolheu {opcao_usuario}. \nO computador escolheu {opcao_maquina}.",font=("jetBrains Mono", 10, "bold"), fg=color_fonts_bords, justify="center",  bg=bg_app)
-    
+        # atualizar as labels de escolhas
+        escolhas_label.config(text=f"Você escolheu {opcao_usuario}. \nO computador escolheu {opcao_maquina}.",font=("jetBrains Mono", 10, "bold"), fg=color_fonts_bords, justify="center",  bg=bg_app)
+        
+        # determinar o resultado da partida
+        resultado = determinar_resultado(opcao_usuario, opcao_maquina)
+        
+        # atualizar o contador de resultados
+        if resultado == "Você ganhou!":
+            vitorias.set(str(int(vitorias.get()) + 1))
+        elif resultado == "Você perdeu!":
+            derrotas.set(str(int(derrotas.get()) + 1))
+        else:
+            empates.set(str(int(empates.get()) + 1))
 
-    # determinar o resultado da partida
-    resultado = determinar_resultado(opcao_usuario, opcao_maquina)
-    
-    # atualizar o contador de resultados
-    if resultado == "Você ganhou!":
-        vitorias.set(str(int(vitorias.get()) + 1))
-    elif resultado == "Você perdeu!":
-        derrotas.set(str(int(derrotas.get()) + 1))
+        resultado_label.config(text=resultado)
     else:
-        empates.set(str(int(empates.get()) + 1))
+        # usuário não selecionou nenhuma opção
+        messagebox.showwarning("Aviso","Faça sua escolha primeiro antes de jogar")
+        # return   
 
-    resultado_label.config(text=resultado)  
+      
 
 # criar botão jogar
-botao_jogar = Button(app, text="JOGAR", font=("jetBrains Mono", 10, "bold"),bg="#FED934", width=45, height=2)
+botao_jogar = Button(app, text="JOGAR", font=("jetBrains Mono", 10, "bold"),bg="#FED934", width=45, height=2, command= lambda: jogar(vitorias, derrotas, empates))
 botao_jogar.place(x=5, y=410)
-botao_jogar.bind("<Button-1>", lambda e: jogar(vitorias, derrotas, empates))
+# botao_jogar.bind("<Button-1>", lambda e: jogar(vitorias, derrotas, empates))
 
 #Cria o componente placar
 resultado_label = Label(app, width=50, height=5,  font=("jetBrains Mono", 10, "bold"), fg=color_fonts_bords, bg=bg_app)
